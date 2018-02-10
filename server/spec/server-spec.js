@@ -86,4 +86,49 @@ describe('Persistent Node Chat Server', function() {
       });
     });
   });
+  
+  it('should add a user', function (done) {
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/users',
+      json: {username: 'mother'}
+    }, function () {
+      
+      var queryString = 'SELECT username FROM users;';
+      
+      dbConnection.query( queryString, function (err, users) {
+        expect(users[1].username).to.equal('mother');
+        done();
+
+      });
+    });
+  });
+  
+  it('Should not add a user if it is already in the database', function(done) {
+    request({
+      method: 'POST',
+      uri: 'http://127.0.0.1:3000/classes/users',
+      json: { username: 'beth' }
+    }, function() {
+      request({
+        method: 'POST',
+        uri: 'http://127.0.0.1:3000/classes/users',
+        json: { username: 'beth' }
+      }, function (error, response, body) {
+        expect(response.statusCode).to.equal(404);
+        done();
+      });
+    });
+  });
+  
 });
+
+
+
+
+
+
+
+
+
+
