@@ -5,7 +5,7 @@ module.exports = {
     get: function (res, callback) {
       console.log('models messages get');
       
-      var sql = 'SELECT users.user, messages.message, messages.room FROM messages INNER JOIN users WHERE messages.user = users.id;';
+      var sql = 'SELECT users.username, messages.message, messages.roomname FROM messages INNER JOIN users WHERE messages.username = users.id;';
       
       
       connection.query(sql, function (err, results) {
@@ -20,12 +20,12 @@ module.exports = {
     }, // a function which produces all the messages
     
     
-    post: function () {
+    post: function (req, res, sql, args, callback) {
       console.log('models messages post');
-      connection.query();
-
       
-      
+      connection.query(sql, args, function (err, results) {
+        callback(err, results);
+      });
     } // a function which can be used to insert a message into the database
   },
 
@@ -33,7 +33,7 @@ module.exports = {
     // Ditto as above.
     get: function (res, callback) {
       console.log('models users get');
-      var sql = 'SELECT user FROM users;';
+      var sql = 'SELECT username FROM users;';
       connection.query(sql, function (err, results) {
         results = JSON.stringify(results);
         callback(err, results);
