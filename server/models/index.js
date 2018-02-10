@@ -31,16 +31,21 @@ module.exports = {
 
   users: {
     // Ditto as above.
-    get: function () {
+    get: function (res, callback) {
       console.log('models users get');
-      
-      connection.query();
+      var sql = 'SELECT user FROM users;';
+      connection.query(sql, function (err, results) {
+        results = JSON.stringify(results);
+        callback(err, results);
+      });
       
     },
-    post: function () {
+    post: function (res, sql, args, callback) {
       console.log('models users post');
-      
-      connection.query();
+  
+      connection.query(sql, args, function (err, results) {
+        callback(err, results);
+      });
     }
   }
 };
