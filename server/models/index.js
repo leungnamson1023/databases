@@ -20,11 +20,48 @@ module.exports = {
     }, // a function which produces all the messages
     
     
-    post: function (req, res, sql, args, callback) {
+    post: function (req, res, callback) {
       console.log('models messages post');
+      var args = [req.body.username];
+      var sql = 'SELECT id FROM users WHERE username = ?;';
       
       connection.query(sql, args, function (err, results) {
-        callback(err, results);
+        if (err) {
+          callback(err, results);
+        } else {
+          if (results.length === 0) {
+            var newSql = 'INSERT INTO users (username) values (?);';
+            
+            connection.query(newSql, args, function (err, results) {
+              if (err) {
+                callback(err, results);
+              } else {
+                
+                connection.query(sql, args, function (err, results) {
+                  if (err) {
+                    callback(err, results);
+                  } else {
+                    var userId = results[0].id;
+                    sql = 'INSERT INTO messages (username, message, roomname) values (?, ?, ?);';
+                    args = [userId, req.body.message, req.body.roomname];
+                    connection.query(sql, args, function (err, results) {
+                      callback(err, results);
+                    });
+                  }
+                });
+              }
+            });
+            
+          } else {
+            var userId = results[0].id;
+            sql = 'INSERT INTO messages (username, message, roomname) values (?, ?, ?);';
+            args = [userId, req.body.message, req.body.roomname];
+            
+            connection.query(sql, args, function (err, results) {
+              callback(err, results);
+            });
+          }
+        }
       });
     } // a function which can be used to insert a message into the database
   },

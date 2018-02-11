@@ -1,5 +1,6 @@
 var models = require('../models');
 var express = require('express');
+var fs = require('fs');
 
 const headers = {};
 
@@ -10,11 +11,9 @@ module.exports = {
       
       models.messages.get(res, (err, results) => {
         if (err) {
-          res.writeHead(404, headers);
-          res.end();
-        } else {
-          res.writeHead(200, headers);
-          res.end(results);
+          res.sendStatus(404);
+        } else {          
+          res.json(results);
         }
       });
       
@@ -22,28 +21,35 @@ module.exports = {
     }, // a function which handles a get request for all messages
     post: function (req, res) {
       console.log('message post!!!');  
-      var args = [req.body.username];
-      var sql = 'SELECT id FROM users WHERE username = ?;';
+
       
       
-      models.messages.post(req, res, sql, args, (err, results) => {
+      models.messages.post(req, res, (err, results) => {
         if (err) {
-          res.writeHead(404, headers);
-          res.end();
+          res.sendStatus(404);
         } else {
-          var userId = results[0].id;
-          sql = 'INSERT INTO messages (username, message, roomname) values (?, ?, ?);';
-          args = [userId, req.body.message, req.body.roomname];
-          models.messages.post(req, res, sql, args, (err, results) => {
-            if (err) {
-              res.writeHead(404, headers);
-              res.end();
-            } else {
-              res.writeHead(201, headers);
-              res.end();
-            }
-          });
+          res.sendStatus(201);
         }
+          
+        //   if (results.length === 0) {
+        //     //set new sql 
+        //     // call models.users.post
+        //       //callback (err, results)
+        //         //err --> 404
+        //         //
+        //   } else {
+        //     var userId = results[0].id;
+        //     sql = 'INSERT INTO messages (username, message, roomname) values (?, ?, ?);';
+        //     args = [userId, req.body.message, req.body.roomname];
+        //     models.messages.post(req, res, sql, args, (err, results) => {
+        //       if (err) {
+        //         res.sendStatus(404);
+        //       } else {
+        //         res.sendStatus(201);
+        //       }
+        //     });
+        //   }
+        // }
       });
       
     } // a function which handles posting a message to the database
